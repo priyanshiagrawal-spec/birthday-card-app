@@ -6,12 +6,13 @@ import io
 import zipfile
 import tempfile
 
-# ✅ FIXED FONT LOADER (works on cloud)
+# ✅ FIXED FONT LOADER (CLOUD SAFE)
 def load_bold_font(size):
     try:
-        return ImageFont.truetype("DejaVuSans-Bold.ttf", size)
+        font_path = os.path.join(os.path.dirname(__file__), "DejaVuSans-Bold.ttf")
+        return ImageFont.truetype(font_path, size)
     except Exception as e:
-        st.warning(f"Font not found, using default: {e}")
+        st.error(f"Font load error: {e}")
         return ImageFont.load_default()
 
 def get_centered_position(text, font, y_position, image_width):
@@ -88,6 +89,7 @@ if 'templates' not in st.session_state:
 
 st.set_page_config(page_title="Multi-template Birthday Card Generator", layout="wide")
 
+# UI styling
 st.markdown("""
 <style>
 .stButton>button {
@@ -102,14 +104,14 @@ st.markdown("""
 
 st.title("🎂 Multi-template Card Generator")
 
-# Excel upload
+# Upload Excel
 st.markdown('<p class="upload-text">1. Upload Excel File</p>', unsafe_allow_html=True)
 excel_file = st.file_uploader(
     "Must include 'Owner Name' and 'Business Name' columns",
     type=['xlsx']
 )
 
-# Template upload
+# Upload templates
 st.markdown('<p class="upload-text">2. Upload Template Images</p>', unsafe_allow_html=True)
 template_files = st.file_uploader(
     "Select templates",
@@ -154,7 +156,7 @@ if template_files:
         
         st.image(preview, width=400)
 
-# Generate
+# Generate cards
 if excel_file and template_files:
     if st.button("Generate Birthday Cards"):
         df = pd.read_excel(excel_file)
@@ -174,7 +176,7 @@ if excel_file and template_files:
         st.session_state.zip_buffer = zip_buffer.getvalue()
         st.session_state.generated = True
         
-        st.success("✅ Cards generated!")
+        st.success("✅ Cards generated successfully!")
 
 # Download
 if st.session_state.generated:
